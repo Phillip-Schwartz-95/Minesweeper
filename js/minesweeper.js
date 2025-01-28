@@ -27,6 +27,7 @@ function onInit() {
     document.querySelector('.gameover-modal').style.display = 'none'
     document.querySelector('.gameover-modal h4').innerText = ''
     gLives=3
+    gMinesClicked = 0
     document.querySelector('.lives span').innerText = gLives
 }
 
@@ -198,7 +199,7 @@ function checkGameOver() {
         }
     }
 
-    if (allMinesMarked && allCellsUncovered) {
+    if (allMinesMarked && allCellsUncovered && gMinesClicked < gLevel.mines && gLives > 0) {
         console.log('You Won!')
         gameoverText.innerText = 'You Won!'
         gameoverDisplay.style.display = 'flex'
