@@ -1,7 +1,134 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 40px;
+    background-color: white; 
+    color: black; 
+}
+
+
+table {
+    border-collapse: collapse;
+    margin: 10px auto;
+    background-color: #f0f0f0; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+}
+
+td {
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #ccc; 
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #fff; 
+    transition: background-color 0.3s; 
+}
+
+td.covered {
+    background-color: #ddd; 
+}
+
+td.mine {
+    background-color: #f44336; 
+    color: white;
+}
+
+td.marked {
+    background-color: #ffeb3b; 
+}
+
+td:hover {
+    background-color: #e0e0e0; 
+}
+
+
 .covered {
 cursor: pointer;
 }
 
 .uncovered {
 cursor: pointer;
+}
+
+.dark-mode {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 40px;
+    background-color: black;
+    color: white;
+}
+
+.gameover-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(85, 0, 85);
+    color: white; 
+    border: 2px solid #4CAF50;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.gameover-modal h4 {
+    display: flex;
+    margin: 0 0 20px 0
+}
+
+.gameover-modal button {
+    display: flex;
+    background-color: #4CAF50;
+    color: white; 
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.dark-mode .gameover-modal {
+    background-color: turquoise; 
+    color: black; 
+    border: 2px solid #FF5722; 
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+.smile-button {
+    background-color: transparent;
+    margin: 10px;
+    border: none;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.background-button {
+    cursor: pointer;
+}
+
+footer  {
+position: absolute;
+bottom: 0;
+right: 0;
+padding: 10px;
+background-color: rgba(0, 0, 0, 0.5); 
+color: white;
+border-radius: 5px;
+margin: 10px;
+}
+
+.exterm-button {
+    background-color: rgb(85, 0, 85);
+    color: white; 
+    border: 2px solid #4CAF50;
+    margin-top: 25px;
 }

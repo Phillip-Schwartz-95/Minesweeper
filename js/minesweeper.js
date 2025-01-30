@@ -18,17 +18,37 @@ var gFirstClick = true
 
 var gLives = 3
 
+var gTimerInterval;
+var gStartTime;
+
+function startTimer() {
+    gStartTime = Date.now()
+    gTimerInterval = setInterval(updateTimer, 1000)
+}
+
+function updateTimer() {
+    var gameTime = Math.floor((Date.now() - gStartTime) / 1000)
+    document.querySelector('.score span').innerText = gameTime
+}
+
+function stopTimer() {
+    clearInterval(gTimerInterval)
+}
+
 function onInit() {
     console.log('Game started')
     gBoard = buildBoard(gLevel.size)
     renderBoard(gBoard)
-    gFirstClick=true
+    gFirstClick = true
     document.querySelector('.difficulty-header').style.display = 'none'
     document.querySelector('.gameover-modal').style.display = 'none'
     document.querySelector('.gameover-modal h4').innerText = ''
-    gLives=3
+    gLives = 3
     gMinesClicked = 0
     document.querySelector('.lives span').innerText = gLives
+    document.querySelector('.smile-button').innerText = '🙂'
+    startTimer()
+
 }
 
 function displayLives() {
@@ -64,7 +84,7 @@ function renderBoard(board) {
         for (var j = 0; j < board[i].length; j++) {
             var cell = board[i][j]
             var className = cell.isCovered ? 'covered' : 'uncovered'
-            var cellContent = cell.isMarked ? '🏴‍☠️' : (cell.isCovered ? '🔳' : (cell.isMine ? '💣' : cell.minesAroundCount))
+            var cellContent = cell.isMarked ? '🏴‍☠️' : (cell.isCovered ? '🟥' : (cell.isMine ? '💣' : cell.minesAroundCount))
             strHTML += `<td class="${className}" onclick="onCellClicked(this, ${i}, ${j})" oncontextmenu="onCellMarked(this, ${i}, ${j}); return false;">${cellContent}</td>`
         }
         strHTML += '</tr>'
@@ -84,16 +104,31 @@ function onCellClicked(elCell, i, j) {
 
     // Uncover the cell and update the board
     gBoard[i][j].isCovered = false
-    //uncover empty neighboring cells
-    if (gBoard[i][j].minesAroundCount === 0)
-        expandUncover(gBoard, elCell, i, j)
 
-    if (gBoard[i][j].isMine === true) {
+    //check if clicked cell is mine
+    if (gBoard[i][j].isMine) {
         elCell.innerHTML = '💣'
         console.log('life lost')
         gLives--
         gMinesClicked++
         document.querySelector('.lives span').innerText = gLives
+
+        //let's player know he stepped on a mine by changing smile button for a second
+        var smileButton = document.querySelector('.smile-button')
+        smileButton.innerText = '🤫 Cover that up!'
+        setTimeout(() => {
+            smileButton.innerText = '🙂'
+        }, 500)
+
+        //marked means the cell has been uncovered
+        if (gBoard[i][j].isMarked) {
+            gBoard[i][j].isCovered = false
+        }
+
+    } else {
+        //uncover empty neighboring cells
+        if (gBoard[i][j].minesAroundCount === 0)
+            expandUncover(gBoard, elCell, i, j)
     }
     renderBoard(gBoard)
     checkGameOver()
@@ -101,7 +136,9 @@ function onCellClicked(elCell, i, j) {
 
 function onCellMarked(elCell, i, j) {
     gBoard[i][j].isMarked = !gBoard[i][j].isMarked
+
     renderBoard(gBoard)
+    checkGameOver()
 }
 
 function setMines(board, firstClickIdx) {
@@ -179,13 +216,7 @@ function checkGameOver() {
     var allCellsUncovered = true
     var gameoverDisplay = document.querySelector('.gameover-modal')
     var gameoverText = document.querySelector('.gameover-modal h4')
-
-    if (gLives === 0 || gMinesClicked === gLevel.mines) {
-        console.log('You lost')
-        gameoverText.innerText = 'You lost'
-        gameoverDisplay.style.display = 'flex'
-        gGame.isOn = false
-    }
+    var smileButton = document.querySelector('.smile-button')
 
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[i].length; j++) {
@@ -199,16 +230,88 @@ function checkGameOver() {
         }
     }
 
-    if (allMinesMarked && allCellsUncovered && gMinesClicked < gLevel.mines && gLives > 0) {
-        console.log('You Won!')
-        gameoverText.innerText = 'You Won!'
+    // If the player has lost all lives or all mines have been clicked
+    if (gLives === 0 || gMinesClicked === gLevel.mines) {
+        console.log('You lost')
+        gameoverText.innerText = 'You lost'
         gameoverDisplay.style.display = 'flex'
+        smileButton.innerText = '🤯'
         gGame.isOn = false
-
+        stopTimer()
+    }
+    else {
+        // If all mines are marked and all other cells are uncovered, the player wins
+        if (allMinesMarked && allCellsUncovered) {
+            console.log('You Won!')
+            gameoverText.innerText = 'You Won!'
+            gameoverDisplay.style.display = 'flex'
+            smileButton.innerText = '😎'
+            gGame.isOn = false
+            stopTimer()
+            // Save the time to localStorage
+            var elapsedTime = Math.floor((Date.now() - gStartTime) / 1000);
+            saveAndShowBestTime(elapsedTime);
+        }
     }
 }
 
+function saveAndShowBestTime(time) {
+    var bestTimeOnDifficulty = 'bestTime-' + gLevel.size
+    var bestTime = localStorage.getItem(bestTimeOnDifficulty)
+    if (!bestTime || time < bestTime) {
+        localStorage.setItem(bestTimeOnDifficulty, time)
+        bestTime = time
+    }
 
+    //show the saved score on the game page
+    var begScoreStr = document.querySelector('.best-score-beginner')
+    var medScoreStr = document.querySelector('.best-score-medium')
+    var expScoreStr = document.querySelector('.best-score-expert')
+    if (gLevel.size === 4) {
+        begScoreStr.innerText = `Best Beginner Time: ${bestTime} seconds`
+    } else if (gLevel.size === 8) {
+        medScoreStr.innerText = `Best Medium Time: ${bestTime} seconds`
+    } else if (gLevel.size === 12) {
+        expScoreStr.innerText = `Best Expert Time: ${bestTime} seconds`
+    }
+}
+
+function toggleBackground() {
+    var bodycolor = document.body
+    var button = document.querySelector('.background-button')
+    bodycolor.classList.toggle('dark-mode')
+    if (body.classList.contains('dark-mode')) {
+        button.innerText = 'Light Mode'
+    } else {
+        button.innerText = 'Dark Mode'
+    }
+}
+
+function mineExterminator() {
+    if (gLevel.mines === 0) {
+        alert("You must play one move to render the mines")
+        return
+
+    } else if (gLevel.mines <= 3) {
+        alert("There are not enough mines on this difficulty")
+        return
+
+    } else if (gLevel.mines > 3)
+        var minesRemoved = 0
+    while (minesRemoved < 3) {
+        for (var i = 0; i < gBoard.length; i++) {
+            for (var j = 0; j < gBoard[i].length; j++)
+                if (gBoard[i][j].isMine) {
+                    gBoard[i][j].isMine = false
+                    minesRemoved++
+                    if (minesRemoved >= 3) break
+                }
+        }
+        if (minesRemoved >= 3) break
+    }
+    setMinesNegsCount(gBoard)
+    renderBoard(gBoard)
+}
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
