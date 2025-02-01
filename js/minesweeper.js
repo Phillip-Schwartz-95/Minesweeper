@@ -18,8 +18,12 @@ var gFirstClick = true
 
 var gLives = 3
 
-var gTimerInterval;
-var gStartTime;
+var gTimerInterval
+var gStartTime
+
+var gSafeClicks = 3
+
+var gHints = 3
 
 function startTimer() {
     gStartTime = Date.now()
@@ -47,6 +51,12 @@ function onInit() {
     gMinesClicked = 0
     document.querySelector('.lives span').innerText = gLives
     document.querySelector('.smile-button').innerText = '🙂'
+    gSafeClicks = 3
+    document.querySelector('.safeclick-button').innerText = 'Safe Click (3 Clicks Left)'
+    gHints = 3
+    document.querySelector('.hint-button').innerText = '3 Hints Left'
+    document.querySelector('.lightbulbs').innerText = '💡💡💡'
+
     startTimer()
 
 }
@@ -70,7 +80,9 @@ function buildBoard(cellAmt) {
                 minesAroundCount: 0,
                 isCovered: true,
                 isMine: false,
-                isMarked: false
+                isMarked: false,
+                isHighlighted: false,
+                isHinted: false
             }
         }
     }
@@ -83,9 +95,29 @@ function renderBoard(board) {
         strHTML += '<tr>'
         for (var j = 0; j < board[i].length; j++) {
             var cell = board[i][j]
-            var className = cell.isCovered ? 'covered' : 'uncovered'
-            var cellContent = cell.isMarked ? '🏴‍☠️' : (cell.isCovered ? '🟥' : (cell.isMine ? '💣' : cell.minesAroundCount))
-            strHTML += `<td class="${className}" onclick="onCellClicked(this, ${i}, ${j})" oncontextmenu="onCellMarked(this, ${i}, ${j}); return false;">${cellContent}</td>`
+            var className = `cell-${i}-${j}`
+            if (cell.isCovered) {
+                className += '-covered'
+            } else if (!cell.isCovered) {
+                className += '-uncovered'
+            } else if (cell.isMine) {
+                className += '-mine'
+            } else if (cell.isMarked) {
+                className += '-marked'
+            }
+
+            var cellContent = cell.isMarked ? '🏴‍☠️' : (cell.isCovered ? '🪨' : (cell.isMine ? '💣' : cell.minesAroundCount))
+            var cellStyle = ''
+            if (cell.isCovered)
+                cellStyle = 'background-color: #8B4513;'
+            if (cell.isHighlighted)
+                cellStyle = 'background-color: #4CAF50;'
+            if (cell.isMarked)
+                cellStyle = 'background-color: #FFD700;'
+            if (cell.isMine && !cell.isCovered)
+                cellStyle = 'background-color: #FF0000;'
+
+            strHTML += `<td class="${className}" onclick="onCellClicked(this, ${i}, ${j})" oncontextmenu="onCellMarked(this, ${i}, ${j}); return false;" style="${cellStyle}">${cellContent}</td>`
         }
         strHTML += '</tr>'
     }
@@ -210,7 +242,6 @@ function expandUncover(board, elCell, i, j) {
     }
 }
 
-
 function checkGameOver() {
     var allMinesMarked = true
     var allCellsUncovered = true
@@ -250,17 +281,37 @@ function checkGameOver() {
             stopTimer()
             // Save the time to localStorage
             var elapsedTime = Math.floor((Date.now() - gStartTime) / 1000);
+            console.log('Elapsed Time:', elapsedTime)
             saveAndShowBestTime(elapsedTime);
         }
     }
 }
 
 function saveAndShowBestTime(time) {
-    var bestTimeOnDifficulty = 'bestTime-' + gLevel.size
-    var bestTime = localStorage.getItem(bestTimeOnDifficulty)
-    if (!bestTime || time < bestTime) {
-        localStorage.setItem(bestTimeOnDifficulty, time)
-        bestTime = time
+    console.log('Elapsed Time', time)
+    var bestBegTime = localStorage.getItem('bestTime-4')
+    var bestMedTime = localStorage.getItem('bestTime-8')
+    var bestExpTime = localStorage.getItem('bestTime-12')
+
+    bestBegTime = bestBegTime ? parseInt(bestBegTime, 10) : null
+    bestMedTime = bestMedTime ? parseInt(bestMedTime, 10) : null
+    bestExpTime = bestExpTime ? parseInt(bestExpTime, 10) : null
+
+    if (gLevel.size === 4) {
+        if (!bestBegTime || time < bestBegTime) {
+            localStorage.setItem('bestTime-4', time)
+            bestBegTime = time
+        }
+    } else if (gLevel.size === 8) {
+        if (!bestMedTime || time < bestMedTime) {
+            localStorage.setItem('bestTime-8', time)
+            bestMedTime = time
+        }
+    } else if (gLevel.size === 12) {
+        if (!bestExpTime || time < bestExpTime) {
+            localStorage.setItem('bestTime-12', time)
+            bestExpTime = time
+        }
     }
 
     //show the saved score on the game page
@@ -268,12 +319,13 @@ function saveAndShowBestTime(time) {
     var medScoreStr = document.querySelector('.best-score-medium')
     var expScoreStr = document.querySelector('.best-score-expert')
     if (gLevel.size === 4) {
-        begScoreStr.innerText = `Best Beginner Time: ${bestTime} seconds`
+        begScoreStr.innerText = `Best Beginner Time: ${bestBegTime} seconds`
     } else if (gLevel.size === 8) {
-        medScoreStr.innerText = `Best Medium Time: ${bestTime} seconds`
+        medScoreStr.innerText = `Best Medium Time: ${bestMedTime} seconds`
     } else if (gLevel.size === 12) {
-        expScoreStr.innerText = `Best Expert Time: ${bestTime} seconds`
+        expScoreStr.innerText = `Best Expert Time: ${bestExpTime} seconds`
     }
+    console.log('Best time being displayed:', bestBegTime, bestMedTime, bestExpTime)
 }
 
 function toggleBackground() {
@@ -312,6 +364,162 @@ function mineExterminator() {
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
 }
+
+function safeClickButton() {
+
+    if (gSafeClicks <= 0) {
+        alert("No Safe Clicks")
+        return
+    }
+
+    if (gFirstClick) {
+        alert("Play First Move")
+        return
+    }
+    const safeCellsArray = []
+
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            if (!gBoard[i][j].isMine && gBoard[i][j].isCovered) {
+                safeCellsArray.push({ i, j })
+            }
+        }
+    }
+
+    if (safeCellsArray.length === 0) {
+        alert("No Safe Cells Remaining")
+        return
+    }
+
+
+    var ranIdx = getRandomInt(0, safeCellsArray.length - 1)
+    var safeCell = safeCellsArray[ranIdx]
+
+    gBoard[safeCell.i][safeCell.j].isHighlighted = true
+    renderBoard(gBoard)
+
+    gSafeClicks--
+
+    setTimeout(() => {
+        gBoard[safeCell.i][safeCell.j].isHighlighted = false
+        renderBoard(gBoard)
+    }, 1500)
+
+    var safeClickText = document.querySelector('.safeclick-button')
+    safeClickText.innerText = `Safe Click (${gSafeClicks} Clicks Left)`
+}
+
+function getHint() {
+    if (gHints <= 0) {
+        alert("No Safe Clicks")
+        return
+    }
+
+    if (gFirstClick) {
+        alert("Play First Move")
+        return
+    }
+
+    const randomArray = []
+
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            if (gBoard[i][j].isCovered && areAllNeighborsCovered(gBoard, i, j)) {
+
+                randomArray.push({ i, j })
+            }
+        }
+    }
+    if (randomArray.length === 0) {
+        alert("Not enough cells")
+        return
+    }
+    var ranIdx = getRandomInt(0, randomArray.length - 1)
+    var hintCell = randomArray[ranIdx]
+
+    uncoverCellAndNeighbors(hintCell.i, hintCell.j)
+    gHints--
+
+    var hintButton = document.querySelector('.hint-button')
+    var lightBulbs = document.querySelector('.lightbulbs')
+
+    hintButton.innerText = `${gHints} Hints Left`
+
+    if (gHints === 2) {
+        lightBulbs.innerText = '💡💡'
+    }
+    if (gHints === 1) {
+        lightBulbs.innerText = '💡'
+    }
+    if (gHints <= 0) {
+        lightBulbs.innerText = '🌚'
+    }
+}
+
+function areAllNeighborsCovered(board, i, j) {
+    const directions = [
+        { x: -1, y: 0 }, // left of cell
+        { x: 1, y: 0 }, // right 
+        { x: 0, y: -1 }, // up 
+        { x: 0, y: 1 }, // down 
+        { x: -1, y: -1 }, // top-left 
+        { x: 1, y: -1 }, // top-right 
+        { x: -1, y: 1 }, // bottom-left 
+        { x: 1, y: 1 } // bottom-right
+    ];
+
+    for (var k = 0; k < directions.length; k++) {
+        var x = i + directions[k].x
+        var y = j + directions[k].y
+        if (x >= 0 && x < board.length && y >= 0 && y < board[i].length) {
+            if (!board[x][y].isCovered) {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+function uncoverCellAndNeighbors(i, j) {
+    const directions = [
+        { x: -1, y: 0 }, // left of cell
+        { x: 1, y: 0 }, // right 
+        { x: 0, y: -1 }, // up 
+        { x: 0, y: 1 }, // down 
+        { x: -1, y: -1 }, // top-left 
+        { x: 1, y: -1 }, // top-right 
+        { x: -1, y: 1 }, // bottom-left 
+        { x: 1, y: 1 } // bottom-right
+    ]
+
+    gBoard[i][j].isCovered = false
+    gBoard[i][j].isHinted = true
+
+    for (var k = 0; k < directions.length; k++) {
+        var x = i + directions[k].x
+        var y = j + directions[k].y
+        if (x >= 0 && x < gBoard.length && y >= 0 && y < gBoard[i].length) {
+            gBoard[x][y].isCovered = false
+            gBoard[x][y].isHinted = true
+        }
+    }
+    renderBoard(gBoard)
+
+    setTimeout(() => {
+        gBoard[i][j].isCovered = true
+        gBoard[i][j].isHinted = false
+        for (var k = 0; k < directions.length; k++) {
+            var x = i + directions[k].x;
+            var y = j + directions[k].y;
+            if (x >= 0 && x < gBoard.length && y >= 0 && y < gBoard[i].length) {
+                gBoard[x][y].isCovered = true
+                gBoard[x][y].isHinted = false
+            }
+        }
+        renderBoard(gBoard)
+    }, 1500)
+}
+
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min

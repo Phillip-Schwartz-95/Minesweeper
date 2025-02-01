@@ -10,42 +10,52 @@
 </head>
 
 <body>
-
+    <img src="img/minesweeper-logo (1).png">
     <button class="background-button" onclick="toggleBackground()">Dark Mode</button>
     <button class="smile-button" onclick="onInit()">🙂</button>
-    <div> <h1 class="score">Score: <span>0</span></h1>
-<h2 class="lives">💚X <span></span></h2>
-</div>
+
+    <h1 class="score">Score: <span>0</span></h1>
+
+    <div class='first-container'>
+        <h2 class="lives">💚X <span></span></h2>
+        <div class="hints">
+            <p class="lightbulbs">💡💡💡</p>
+            <button class="hint-button" onclick="getHint()">3 Hints Left</button>
+        </div>
+    </div>
+
     <div class="board-container"></div>
 
-    <button class="exterm-button" onclick="mineExterminator()">Bomb Exterminator! 🚁</button>
-
+    <div>
+        <button class="exterm-button" onclick="mineExterminator()">Bomb Exterminator! 🚁</button>
+        <button class="safeclick-button" onclick="safeClickButton()"> Safe Click <br> (3 Clicks Left)</button>
+    </div>
     <h3 class="difficulty-header">Please Select Difficulty</h3>
 
     <div class="difficulty" style="margin-top: 20px;">
-        <button data-level="4-2" style= "cursor: pointer;" onclick="setDifficulty(4, 2)">Beginner</button>
+        <button data-level="4-2" style="cursor: pointer;" onclick="setDifficulty(4, 2)">Beginner</button>
 
-        <button data-level="8-14" style= "cursor: pointer;" onclick="setDifficulty(8, 14)">Medium</button>
+        <button data-level="8-14" style="cursor: pointer;" onclick="setDifficulty(8, 14)">Medium</button>
 
-        <button data-level="12-32" style= "cursor: pointer;" onclick="setDifficulty(12, 32)">Expert</button>
+        <button data-level="12-32" style="cursor: pointer;" onclick="setDifficulty(12, 32)">Expert</button>
 
     </div>
 
     <div class="gameover-modal">
         <h4></h4>
-        <button style= "cursor: pointer;" onclick="onInit()">Restart Game</button>
+        <button style="cursor: pointer;" onclick="onInit()">Restart Game</button>
     </div>
 
     <div>
         <p class="best-score-beginner">Best Beginner Score: </p>
         <p class="best-score-medium">Best Medium Score: </p>
-        <p class="best-score-expert">Best Expert Score</p>
+        <p class="best-score-expert">Best Expert Score:</p>
     </div>
-    
+
     <footer>Phillip Sch</footer>
 
     <script src="js/minesweeper.js"></script>
 
-    </body>
+</body>
 
-    </html>
+</html>

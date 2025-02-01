@@ -8,7 +8,28 @@ body {
     color: black; 
 }
 
+.first-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
+.lives {
+    margin-right: 20px;
+}
+
+.hints {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hint-button {
+    background-color: rgb(11, 109, 214);
+    color: white;
+    border: 2px solid lightslategrey;
+    cursor: pointer;
+}
 table {
     border-collapse: collapse;
     margin: 10px auto;
@@ -29,8 +50,8 @@ td {
     transition: background-color 0.3s; 
 }
 
-td.covered {
-    background-color: #ddd; 
+.safe-click {
+    background-color: #4CAF50;
 }
 
 td.mine {
@@ -131,4 +152,13 @@ margin: 10px;
     color: white; 
     border: 2px solid #4CAF50;
     margin-top: 25px;
+    cursor: pointer;
+}
+
+.safeclick-button {
+    background-color: rgb(11, 109, 214);
+    color: white;
+    border: 2px solid lightslategrey
+    margin-top 25px;
+    cursor: pointer;
 }
