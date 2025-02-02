@@ -25,6 +25,10 @@ var gSafeClicks = 3
 
 var gHints = 3
 
+var gManuallyCreate = false
+
+var gExterminator = true
+
 function startTimer() {
     gStartTime = Date.now()
     gTimerInterval = setInterval(updateTimer, 1000)
@@ -41,9 +45,15 @@ function stopTimer() {
 
 function onInit() {
     console.log('Game started')
+    gGame.isOn = false
+    gGame.coveredCount = 0
+    gGame.markedCount = 0
+    gGame.secsPassed = 0
     gBoard = buildBoard(gLevel.size)
     renderBoard(gBoard)
     gFirstClick = true
+    gManuallyCreate = false
+    gExterminator = true
     document.querySelector('.difficulty-header').style.display = 'none'
     document.querySelector('.gameover-modal').style.display = 'none'
     document.querySelector('.gameover-modal h4').innerText = ''
@@ -56,6 +66,7 @@ function onInit() {
     gHints = 3
     document.querySelector('.hint-button').innerText = '3 Hints Left'
     document.querySelector('.lightbulbs').innerText = '💡💡💡'
+
 
     startTimer()
 
@@ -86,6 +97,8 @@ function buildBoard(cellAmt) {
             }
         }
     }
+    gGame.isOn = true
+    gGame.coveredCount = cellAmt * cellAmt
     return board
 }
 
@@ -126,44 +139,77 @@ function renderBoard(board) {
     elBoard.innerHTML = strHTML
 }
 
+function toggleManuallyCreateMode() {
+    gManuallyCreate = !gManuallyCreate
+    var buttonText = document.querySelector('.place-bombs-button')
+    var startButtonText = document.querySelector('.start-game-button')
+    buttonText.innerText = gManuallyCreate ? 'Play Mode' : 'Manually Create Mode'
+    startButtonText.style.display = gManuallyCreate ? 'block' : 'none'
+    onInit()
+}
+
+function startGame() {
+    gGame.isOn = true
+    gManuallyCreate = false
+    var button = document.querySelector('.place-bombs-button')
+    var startButton = document.querySelector('.start-game-button')
+    startButton.style.display = 'none'
+    startTimer()
+    setMinesNegsCount(gBoard)
+    renderBoard(gBoard)
+}
+
 function onCellClicked(elCell, i, j) {
+
+    if (gManuallyCreate) {
+        gBoard[i][j].isMine = !gBoard[i][j].isMine
+        renderBoard(gBoard)
+        return
+    }
+
     if (gFirstClick) {
         //place mines on first click
         setMines(gBoard, { i, j })
         //false means the next clicks will not render more mines
         gFirstClick = false
-    }
 
-    // Uncover the cell and update the board
-    gBoard[i][j].isCovered = false
+    } else if (!gManuallyCreate && !gFirstClick) {
 
-    //check if clicked cell is mine
-    if (gBoard[i][j].isMine) {
-        elCell.innerHTML = '💣'
-        console.log('life lost')
-        gLives--
-        gMinesClicked++
-        document.querySelector('.lives span').innerText = gLives
-
-        //let's player know he stepped on a mine by changing smile button for a second
-        var smileButton = document.querySelector('.smile-button')
-        smileButton.innerText = '🤫 Cover that up!'
-        setTimeout(() => {
-            smileButton.innerText = '🙂'
-        }, 500)
-
-        //marked means the cell has been uncovered
-        if (gBoard[i][j].isMarked) {
+        // Uncover the cell and update the board
+        if (gBoard[i][j].isCovered) {
             gBoard[i][j].isCovered = false
+            gGame.coveredCount--
         }
 
-    } else {
-        //uncover empty neighboring cells
-        if (gBoard[i][j].minesAroundCount === 0)
-            expandUncover(gBoard, elCell, i, j)
+        //check if clicked cell is mine
+        if (gBoard[i][j].isMine) {
+            elCell.innerHTML = '💣'
+            console.log('life lost')
+            gLives--
+            gMinesClicked++
+            document.querySelector('.lives span').innerText = gLives
+
+            //let's player know he stepped on a mine by changing smile button for a second
+            var smileButton = document.querySelector('.smile-button')
+            smileButton.innerText = '🤫 Cover that up!'
+            setTimeout(() => {
+                smileButton.innerText = '🙂'
+            }, 500)
+
+            //marked means the cell has been uncovered and added to the marked counter
+            if (gBoard[i][j].isMarked) {
+                gGame.markedCount++
+                gBoard[i][j].isCovered = false
+            }
+
+        } else {
+            //uncover empty neighboring cells
+            if (gBoard[i][j].minesAroundCount === 0)
+                expandUncover(gBoard, elCell, i, j)
+        }
+        renderBoard(gBoard)
+        checkGameOver()
     }
-    renderBoard(gBoard)
-    checkGameOver()
 }
 
 function onCellMarked(elCell, i, j) {
@@ -282,13 +328,14 @@ function checkGameOver() {
             // Save the time to localStorage
             var elapsedTime = Math.floor((Date.now() - gStartTime) / 1000);
             console.log('Elapsed Time:', elapsedTime)
-            saveAndShowBestTime(elapsedTime);
+            gGame.secsPassed = elapsedTime
+            saveAndShowBestTime();
         }
     }
 }
 
-function saveAndShowBestTime(time) {
-    console.log('Elapsed Time', time)
+function saveAndShowBestTime() {
+    var time = gGame.secsPassed
     var bestBegTime = localStorage.getItem('bestTime-4')
     var bestMedTime = localStorage.getItem('bestTime-8')
     var bestExpTime = localStorage.getItem('bestTime-12')
@@ -332,7 +379,7 @@ function toggleBackground() {
     var bodycolor = document.body
     var button = document.querySelector('.background-button')
     bodycolor.classList.toggle('dark-mode')
-    if (body.classList.contains('dark-mode')) {
+    if (bodycolor.classList.contains('dark-mode')) {
         button.innerText = 'Light Mode'
     } else {
         button.innerText = 'Dark Mode'
@@ -340,6 +387,11 @@ function toggleBackground() {
 }
 
 function mineExterminator() {
+
+    if (gExterminator === false) {
+        console.log('Already clicked')
+        alert('You may only click once per game')
+    }
     if (gLevel.mines === 0) {
         alert("You must play one move to render the mines")
         return
@@ -348,22 +400,27 @@ function mineExterminator() {
         alert("There are not enough mines on this difficulty")
         return
 
-    } else if (gLevel.mines > 3)
-        var minesRemoved = 0
-    while (minesRemoved < 3) {
-        for (var i = 0; i < gBoard.length; i++) {
-            for (var j = 0; j < gBoard[i].length; j++)
-                if (gBoard[i][j].isMine) {
-                    gBoard[i][j].isMine = false
-                    minesRemoved++
-                    if (minesRemoved >= 3) break
-                }
+    } else if (gExterminator) {
+
+        if (gLevel.mines > 3)
+            var minesRemoved = 0
+        while (minesRemoved < 3) {
+            for (var i = 0; i < gBoard.length; i++) {
+                for (var j = 0; j < gBoard[i].length; j++)
+                    if (gBoard[i][j].isMine) {
+                        gBoard[i][j].isMine = false
+                        minesRemoved++
+                        if (minesRemoved >= 3) break
+                    }
+            }
+            if (minesRemoved >= 3) break
         }
-        if (minesRemoved >= 3) break
+        setMinesNegsCount(gBoard)
+        renderBoard(gBoard)
     }
-    setMinesNegsCount(gBoard)
-    renderBoard(gBoard)
+    gExterminator = false
 }
+
 
 function safeClickButton() {
 

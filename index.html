@@ -11,11 +11,20 @@
 
 <body>
     <img src="img/minesweeper-logo (1).png">
+    
+    <div class="side-image left">
+        <img src="img/bomb4.jpg">
+    </div>
+    <div class="side-image right">
+        <img src="img/soldier2.png">
+    </div>
     <button class="background-button" onclick="toggleBackground()">Dark Mode</button>
     <button class="smile-button" onclick="onInit()">🙂</button>
 
     <h1 class="score">Score: <span>0</span></h1>
 
+    <button class="place-bombs-button" onclick="toggleManuallyCreateMode()">Manually Create Mode</button>
+    <button class="start-game-button" onclick="startGame()">Start Edited Game</button>
     <div class='first-container'>
         <h2 class="lives">💚X <span></span></h2>
         <div class="hints">
@@ -33,11 +42,11 @@
     <h3 class="difficulty-header">Please Select Difficulty</h3>
 
     <div class="difficulty" style="margin-top: 20px;">
-        <button data-level="4-2" style="cursor: pointer;" onclick="setDifficulty(4, 2)">Beginner</button>
+        <button class="beg-button" style="cursor: pointer;" onclick="setDifficulty(4, 2)">Beginner</button>
 
-        <button data-level="8-14" style="cursor: pointer;" onclick="setDifficulty(8, 14)">Medium</button>
+        <button class="med-button" style="cursor: pointer;" onclick="setDifficulty(8, 14)">Medium</button>
 
-        <button data-level="12-32" style="cursor: pointer;" onclick="setDifficulty(12, 32)">Expert</button>
+        <button class="exp-button" style="cursor: pointer;" onclick="setDifficulty(12, 32)">Expert</button>
 
     </div>
 

@@ -4,8 +4,44 @@ body {
     justify-content: center;
     align-items: center;
     margin: 40px;
-    background-color: white; 
-    color: black; 
+    background: linear-gradient(to right, green, grey, indigo);
+    color: black;
+}
+
+.side-image {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0;
+}
+
+.side-image img {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.left {
+    left: 30px;
+    top: 25%;
+}
+
+.right {
+    right: 30px;
+    top: 25%;
+}
+
+.background-button {
+    background-color: black;
+    color: white;
+}
+
+.dark-mode .background-button {
+    background-color: white;
+    color: black;
 }
 
 .first-container {
@@ -30,11 +66,12 @@ body {
     border: 2px solid lightslategrey;
     cursor: pointer;
 }
+
 table {
     border-collapse: collapse;
     margin: 10px auto;
-    background-color: #f0f0f0; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+    background-color: #f0f0f0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 td {
@@ -42,12 +79,12 @@ td {
     height: 15px;
     text-align: center;
     vertical-align: middle;
-    border: 1px solid #ccc; 
+    border: 1px solid #ccc;
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
-    background-color: #fff; 
-    transition: background-color 0.3s; 
+    background-color: #fff;
+    transition: background-color 0.3s;
 }
 
 .safe-click {
@@ -55,25 +92,25 @@ td {
 }
 
 td.mine {
-    background-color: #f44336; 
+    background-color: #f44336;
     color: white;
 }
 
 td.marked {
-    background-color: #ffeb3b; 
+    background-color: #ffeb3b;
 }
 
 td:hover {
-    background-color: #e0e0e0; 
+    background-color: #e0e0e0;
 }
 
 
 .covered {
-cursor: pointer;
+    cursor: pointer;
 }
 
 .uncovered {
-cursor: pointer;
+    cursor: pointer;
 }
 
 .dark-mode {
@@ -82,7 +119,7 @@ cursor: pointer;
     justify-content: center;
     align-items: center;
     margin: 40px;
-    background-color: black;
+    background: linear-gradient(to right, black, rgb(76, 76, 76), rgb(116, 98, 0));
     color: white;
 }
 
@@ -93,7 +130,7 @@ cursor: pointer;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgb(85, 0, 85);
-    color: white; 
+    color: white;
     border: 2px solid #4CAF50;
     padding: 20px;
     border-radius: 10px;
@@ -109,7 +146,7 @@ cursor: pointer;
 .gameover-modal button {
     display: flex;
     background-color: #4CAF50;
-    color: white; 
+    color: white;
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
@@ -118,9 +155,9 @@ cursor: pointer;
 }
 
 .dark-mode .gameover-modal {
-    background-color: turquoise; 
-    color: black; 
-    border: 2px solid #FF5722; 
+    background-color: turquoise;
+    color: black;
+    border: 2px solid #FF5722;
     box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
 }
 
@@ -136,20 +173,20 @@ cursor: pointer;
     cursor: pointer;
 }
 
-footer  {
-position: absolute;
-bottom: 0;
-right: 0;
-padding: 10px;
-background-color: rgba(0, 0, 0, 0.5); 
-color: white;
-border-radius: 5px;
-margin: 10px;
+footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 5px;
+    margin: 10px;
 }
 
 .exterm-button {
     background-color: rgb(85, 0, 85);
-    color: white; 
+    color: white;
     border: 2px solid #4CAF50;
     margin-top: 25px;
     cursor: pointer;
@@ -158,7 +195,20 @@ margin: 10px;
 .safeclick-button {
     background-color: rgb(11, 109, 214);
     color: white;
-    border: 2px solid lightslategrey
-    margin-top 25px;
+    border: 2px solid lightslategrey margin-top 25px;
     cursor: pointer;
+}
+
+.difficulty button {
+    background-color: black;
+    color: white;
+}
+
+.dark-mode .difficulty button {
+    background-color: white;
+    color: black;
+}
+
+.start-game-button {
+    display: none;
 }
