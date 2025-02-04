@@ -121,7 +121,15 @@ td:hover {
     margin: 40px;
     background: linear-gradient(to right, black, rgb(76, 76, 76), rgb(116, 98, 0));
     color: white;
+    text-shadow: 
+        -1px -1px 0 #000, 
+        1px -1px 0 #000, 
+        -1px 1px 0 #000, 
+        1px 1px 0 #000; 
+        font-weight: bold;
 }
+
+
 
 .gameover-modal {
     display: none;
@@ -152,21 +160,36 @@ td:hover {
     padding: 10px 20px;
     font-size: 1em;
     cursor: pointer;
+    margin: 20px;
 }
 
 .dark-mode .gameover-modal {
     background-color: turquoise;
     color: black;
+    text-shadow : none;
     border: 2px solid #FF5722;
     box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
 }
 
 .smile-button {
     background-color: transparent;
-    margin: 10px;
     border: none;
     font-size: 40px;
     cursor: pointer;
+}
+
+.smile-button span {
+    font-size: 15px;
+    font-family: fantasy;
+}
+
+.dark-mode .smile-button span {
+    color: white;
+    text-shadow: 
+    -1px -1px 0 #000, 
+    1px -1px 0 #000, 
+    -1px 1px 0 #000, 
+    1px 1px 0 #000; 
 }
 
 .background-button {
@@ -209,6 +232,29 @@ footer {
     color: black;
 }
 
-.start-game-button {
-    display: none;
+.undo-button {
+    margin-top: 10px;
+    background-color: rgb(11, 109, 214);
+    color: white;
+    border: 2px solid lightslategrey margin-top 25px;
+    cursor: pointer;
+}
+
+.mega-highlighted {
+    background-color: rgb(38, 61, 229);
+}
+
+.mega-hint {
+    margin-top: 12px;
+    color: black;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    background: red;
+    cursor: pointer;
+}
+
+.place-bombs-button {
+    background-color: rgb(156, 214, 11);
+    color: black;
+    border: 2px solid lightslategrey margin-top 25px;
+    cursor: pointer;
 }

@@ -11,7 +11,11 @@
 
 <body>
     <img src="img/minesweeper-logo (1).png">
-    
+    <audio id="win" src="sounds/winner.mp3"></audio>
+    <audio id="lose" src="sounds/loser.mp3"></audio>
+    <audio id="mine" src="sounds/onMine.mp3"></audio>
+    <audio id="uncover" src="sounds/uncovered.mp3"></audio>
+
     <div class="side-image left">
         <img src="img/bomb4.jpg">
     </div>
@@ -19,12 +23,15 @@
         <img src="img/soldier2.png">
     </div>
     <button class="background-button" onclick="toggleBackground()">Dark Mode</button>
-    <button class="smile-button" onclick="onInit()">🙂</button>
+    <div class="restart-smile">
+        <button class="smile-button" onclick="onInit()">🙂<br> <span>Restart</span></button>
+    </div>
+    <button class="mega-hint" onclick="toggleMegaHint()">Mega Hint</button>
 
     <h1 class="score">Score: <span>0</span></h1>
 
     <button class="place-bombs-button" onclick="toggleManuallyCreateMode()">Manually Create Mode</button>
-    <button class="start-game-button" onclick="startGame()">Start Edited Game</button>
+    
     <div class='first-container'>
         <h2 class="lives">💚X <span></span></h2>
         <div class="hints">
@@ -39,6 +46,9 @@
         <button class="exterm-button" onclick="mineExterminator()">Bomb Exterminator! 🚁</button>
         <button class="safeclick-button" onclick="safeClickButton()"> Safe Click <br> (3 Clicks Left)</button>
     </div>
+
+    <button class="undo-button" onclick="undoClick()">Undo</button>
+
     <h3 class="difficulty-header">Please Select Difficulty</h3>
 
     <div class="difficulty" style="margin-top: 20px;">
@@ -49,7 +59,8 @@
         <button class="exp-button" style="cursor: pointer;" onclick="setDifficulty(12, 32)">Expert</button>
 
     </div>
-
+    
+    
     <div class="gameover-modal">
         <h4></h4>
         <button style="cursor: pointer;" onclick="onInit()">Restart Game</button>
@@ -64,6 +75,7 @@
     <footer>Phillip Sch</footer>
 
     <script src="js/minesweeper.js"></script>
+    <script src="js/utils.js"></script>
 
 </body>
 
